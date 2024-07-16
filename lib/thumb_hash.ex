@@ -19,12 +19,16 @@ defmodule ThumbHash do
   @doc """
   Generates a base64 encoded thumbhash of the image located at `path`
   """
-  @spec generate_base64_hash!(Path.t()) :: binary() | no_return()
+  @spec generate_base64_hash!(Path.t() | binary()) :: binary() | no_return()
   def generate_base64_hash!(path) do
-    path
-    |> Image.open!()
-    |> Image.thumbnail!(100, export_icc_profile: :srgb)
-    |> do_generate!()
+    with {:ok, image} <- Image.open(path)
+    do
+      image
+      |> Image.thumbnail!(100, export_icc_profile: :srgb)
+      |> do_generate!()
+    else
+      {:error, error} -> raise error
+    end
   end
 
   @doc """
